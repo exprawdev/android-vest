@@ -1,0 +1,16 @@
+
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Android Vest</string>
+    <string name="app_subtitle">Parental Control Dashboard</string>
+    <string name="device_status">Device Status</string>
+    <string name="activity_overview">Activity Overview</string>
+    <string name="parental_controls">Parental Controls</string>
+    <string name="screen_time">Screen Time</string>
+    <string name="location">Location</string>
+    <string name="app_management">App Management</string>
+    <string name="usage_limits">Usage Limits</string>
+    <string name="safety_settings">Safety Settings</string>
+    <string name="not_connected">Not connected</string>
+    <string name="not_available">Not available</string>
+</resources>
