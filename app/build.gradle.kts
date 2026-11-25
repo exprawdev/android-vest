@@ -2,6 +2,7 @@
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
+    id("com.google.gms.google-services")
 }
 
 android {
@@ -24,11 +25,7 @@ android {
             applicationId = "com.androidvest.parent"
             versionNameSuffix = "-parent"
 
-            resValue(
-                "string",
-                "app_name",
-                "Android Vest Parent"
-            )
+            resValue("string", "app_name", "Android Vest Parent")
         }
 
         create("child") {
@@ -36,11 +33,7 @@ android {
             applicationId = "com.androidvest.child"
             versionNameSuffix = "-child"
 
-            resValue(
-                "string",
-                "app_name",
-                "Android Vest Child"
-            )
+            resValue("string", "app_name", "Android Vest Child")
         }
     }
 
@@ -52,4 +45,10 @@ android {
     kotlinOptions {
         jvmTarget = "17"
     }
+}
+
+dependencies {
+    implementation(platform("com.google.firebase:firebase-bom:35.2.0"))
+    implementation("com.google.firebase:firebase-auth")
+    implementation("com.google.firebase:firebase-firestore")
 }
