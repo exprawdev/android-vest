@@ -26,10 +26,12 @@ class MainActivity : Activity() {
 
     private var locationStatusView: TextView? = null
     private var cameraStatusView: TextView? = null
+    private var microphoneStatusView: TextView? = null
 
     companion object {
         private const val LOCATION_PERMISSION_REQUEST = 1001
         private const val CAMERA_PERMISSION_REQUEST = 1002
+        private const val MICROPHONE_PERMISSION_REQUEST = 1003
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -224,6 +226,7 @@ class MainActivity : Activity() {
 
         locationStatusView = null
         cameraStatusView = null
+        microphoneStatusView = null
 
         addTitle("ANDROID VEST CHILD")
         addSubtitle("Device Setup & Permissions")
@@ -232,12 +235,7 @@ class MainActivity : Activity() {
 
         addLocationPermissionCard()
         addCameraPermissionCard()
-
-        addCard(
-            "Microphone Access",
-            "Not configured",
-            "Microphone access requires permission and a visible session."
-        )
+        addMicrophonePermissionCard()
 
         addCard(
             "Screen Sharing",
@@ -382,6 +380,61 @@ class MainActivity : Activity() {
         }
     }
 
+    // MICROPHONE PERMISSION
+
+    private fun addMicrophonePermissionCard() {
+        val card = createPermissionCard(
+            "Microphone Access",
+            "Allow microphone permission for user-visible audio features."
+        )
+
+        val statusView = createStatusView()
+        microphoneStatusView = statusView
+
+        val permissionButton = createPermissionButton(
+            "Allow Microphone Access"
+        ) {
+            requestMicrophonePermission()
+        }
+
+        card.addView(statusView, marginParams(top = 8))
+        card.addView(permissionButton, marginParams(top = 12))
+
+        root.addView(card, marginParams(bottom = 12))
+
+        updateMicrophoneStatus()
+    }
+
+    private fun requestMicrophonePermission() {
+        val microphoneGranted = checkSelfPermission(
+            Manifest.permission.RECORD_AUDIO
+        ) == PackageManager.PERMISSION_GRANTED
+
+        if (microphoneGranted) {
+            updateMicrophoneStatus()
+            return
+        }
+
+        requestPermissions(
+            arrayOf(Manifest.permission.RECORD_AUDIO),
+            MICROPHONE_PERMISSION_REQUEST
+        )
+    }
+
+    private fun updateMicrophoneStatus() {
+        val microphoneGranted = checkSelfPermission(
+            Manifest.permission.RECORD_AUDIO
+        ) == PackageManager.PERMISSION_GRANTED
+
+        microphoneStatusView?.text = if (microphoneGranted) {
+            "Allowed"
+        } else {
+            "Not granted"
+        }
+    }
+
+    // PERMISSION CALLBACK
+
     override fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<out String>,
@@ -396,6 +449,7 @@ class MainActivity : Activity() {
         when (requestCode) {
             LOCATION_PERMISSION_REQUEST -> updateLocationStatus()
             CAMERA_PERMISSION_REQUEST -> updateCameraStatus()
+            MICROPHONE_PERMISSION_REQUEST -> updateMicrophoneStatus()
         }
     }
 
