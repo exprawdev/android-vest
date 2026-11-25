@@ -25,7 +25,7 @@ class MainActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        if (BuildConfig.FLAVOR == "child") {
+        if (applicationContext.packageName == "com.androidvest.child") {
             showChildSetup()
         } else {
             showDashboard()
