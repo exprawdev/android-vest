@@ -1,4 +1,3 @@
-
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
@@ -24,7 +23,6 @@ android {
             dimension = "edition"
             applicationId = "com.androidvest.parent"
             versionNameSuffix = "-parent"
-
             resValue("string", "app_name", "Android Vest Parent")
         }
 
@@ -32,7 +30,6 @@ android {
             dimension = "edition"
             applicationId = "com.androidvest.child"
             versionNameSuffix = "-child"
-
             resValue("string", "app_name", "Android Vest Child")
         }
     }
@@ -41,9 +38,13 @@ android {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
+}
 
-    kotlinOptions {
-        jvmTarget = "17"
+kotlin {
+    compilerOptions {
+        jvmTarget.set(
+            org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17
+        )
     }
 }
 
