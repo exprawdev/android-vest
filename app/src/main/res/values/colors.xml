@@ -1,0 +1,11 @@
+
+<resources>
+    <color name="vest_background">#0F172A</color>
+    <color name="vest_card">#1E293B</color>
+    <color name="vest_primary">#38BDF8</color>
+    <color name="vest_text">#FFFFFF</color>
+    <color name="vest_secondary">#94A3B8</color>
+    <color name="vest_success">#22C55E</color>
+    <color name="vest_warning">#F59E0B</color>
+    <color name="vest_danger">#EF4444</color>
+</resources>
