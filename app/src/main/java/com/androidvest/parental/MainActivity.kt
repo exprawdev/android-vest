@@ -48,7 +48,13 @@ class MainActivity : Activity() {
         addTitle("ANDROID VEST")
         addSubtitle("Parental Control Dashboard")
 
+        // Settings button is now at the top.
+        addActionButton("SETTINGS") {
+            showSettings()
+        }
+
         addSectionTitle("DEVICE STATUS")
+
         addCard(
             "Child Device",
             "Not connected",
@@ -56,6 +62,7 @@ class MainActivity : Activity() {
         )
 
         addSectionTitle("ACTIVITY OVERVIEW")
+
         addCard(
             "Screen Time",
             "Not available",
@@ -71,10 +78,11 @@ class MainActivity : Activity() {
         addCard(
             "Application Activity",
             "Not available",
-            "Application activity will appear after setup."
+            "Installed app activity will appear here."
         )
 
         addSectionTitle("PARENTAL CONTROLS")
+
         addCard(
             "Usage Limits",
             "Not configured",
@@ -92,12 +100,6 @@ class MainActivity : Activity() {
             "Not configured",
             "Configure family safety preferences."
         )
-
-        addSectionTitle("GENERAL")
-
-        addActionButton("SETTINGS") {
-            showSettings()
-        }
 
         addFooter()
 
@@ -185,7 +187,10 @@ class MainActivity : Activity() {
         setContentView(scrollView)
     }
 
-    private fun showInformation(title: String, message: String) {
+    private fun showInformation(
+        title: String,
+        message: String
+    ) {
         val scrollView = createRoot()
 
         addTitle(title)
@@ -203,7 +208,10 @@ class MainActivity : Activity() {
             text = title
             textSize = 27f
             setTextColor(textColor)
-            setTypeface(null, android.graphics.Typeface.BOLD)
+            setTypeface(
+                null,
+                android.graphics.Typeface.BOLD
+            )
         }
 
         root.addView(view)
@@ -216,7 +224,10 @@ class MainActivity : Activity() {
             setTextColor(secondaryColor)
         }
 
-        root.addView(view, marginParams(top = 6, bottom = 24))
+        root.addView(
+            view,
+            marginParams(top = 6, bottom = 20)
+        )
     }
 
     private fun addSectionTitle(title: String) {
@@ -224,10 +235,16 @@ class MainActivity : Activity() {
             text = title
             textSize = 13f
             setTextColor(primaryColor)
-            setTypeface(null, android.graphics.Typeface.BOLD)
+            setTypeface(
+                null,
+                android.graphics.Typeface.BOLD
+            )
         }
 
-        root.addView(view, marginParams(top = 18, bottom = 10))
+        root.addView(
+            view,
+            marginParams(top = 18, bottom = 10)
+        )
     }
 
     private fun addCard(
@@ -237,7 +254,12 @@ class MainActivity : Activity() {
     ) {
         val card = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
-            setPadding(dp(16), dp(16), dp(16), dp(16))
+            setPadding(
+                dp(16),
+                dp(16),
+                dp(16),
+                dp(16)
+            )
             setBackgroundColor(cardColor)
         }
 
@@ -245,7 +267,10 @@ class MainActivity : Activity() {
             text = title
             textSize = 17f
             setTextColor(textColor)
-            setTypeface(null, android.graphics.Typeface.BOLD)
+            setTypeface(
+                null,
+                android.graphics.Typeface.BOLD
+            )
         }
 
         val statusView = TextView(this).apply {
@@ -261,10 +286,21 @@ class MainActivity : Activity() {
         }
 
         card.addView(titleView)
-        card.addView(statusView, marginParams(top = 8))
-        card.addView(descriptionView, marginParams(top = 6))
 
-        root.addView(card, marginParams(bottom = 12))
+        card.addView(
+            statusView,
+            marginParams(top = 8)
+        )
+
+        card.addView(
+            descriptionView,
+            marginParams(top = 6)
+        )
+
+        root.addView(
+            card,
+            marginParams(bottom = 12)
+        )
     }
 
     private fun addActionButton(
@@ -276,7 +312,10 @@ class MainActivity : Activity() {
             textSize = 14f
             isAllCaps = false
             setTextColor(Color.WHITE)
-            backgroundTintList = ColorStateList.valueOf(primaryColor)
+
+            backgroundTintList =
+                ColorStateList.valueOf(primaryColor)
+
             setOnClickListener {
                 action()
             }
@@ -296,7 +335,10 @@ class MainActivity : Activity() {
             setTextColor(secondaryColor)
         }
 
-        root.addView(footer, marginParams(top = 24))
+        root.addView(
+            footer,
+            marginParams(top = 24)
+        )
     }
 
     private fun marginParams(
@@ -313,6 +355,8 @@ class MainActivity : Activity() {
     }
 
     private fun dp(value: Int): Int {
-        return (value * resources.displayMetrics.density).toInt()
+        return (
+            value * resources.displayMetrics.density
+        ).toInt()
     }
 }
