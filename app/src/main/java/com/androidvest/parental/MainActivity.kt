@@ -1,7 +1,9 @@
 
 package com.androidvest.parental
 
+import android.Manifest
 import android.app.Activity
+import android.content.pm.PackageManager
 import android.os.Bundle
 import android.graphics.Color
 import android.content.res.ColorStateList
@@ -21,6 +23,11 @@ class MainActivity : Activity() {
     private val secondaryColor = Color.rgb(148, 163, 184)
 
     private lateinit var root: LinearLayout
+    private var locationStatusView: TextView? = null
+
+    companion object {
+        private const val LOCATION_PERMISSION_REQUEST = 1001
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -214,26 +221,24 @@ class MainActivity : Activity() {
     private fun showChildSetup() {
         val scrollView = createRoot()
 
+        locationStatusView = null
+
         addTitle("ANDROID VEST CHILD")
         addSubtitle("Device Setup & Permissions")
 
         addSectionTitle("DEVICE PERMISSIONS")
 
-        addCard(
-            "Camera Access",
-            "Not granted",
-            "Camera access requires Android permission approval."
-        )
+        addLocationPermissionCard()
 
         addCard(
-            "Location Access",
-            "Not granted",
-            "Location sharing requires Android location permission."
+            "Camera Access",
+            "Not configured",
+            "Camera access will require Android permission approval."
         )
 
         addCard(
             "Microphone Access",
-            "Not granted",
+            "Not configured",
             "Microphone access requires permission and a visible session."
         )
 
@@ -260,6 +265,128 @@ class MainActivity : Activity() {
         addFooter()
 
         setContentView(scrollView)
+    }
+
+    private fun addLocationPermissionCard() {
+        val card = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(dp(16), dp(16), dp(16), dp(16))
+            setBackgroundColor(cardColor)
+        }
+
+        val titleView = TextView(this).apply {
+            text = "Location Access"
+            textSize = 17f
+            setTextColor(textColor)
+            setTypeface(null, android.graphics.Typeface.BOLD)
+        }
+
+        val statusView = TextView(this).apply {
+            textSize = 14f
+            setTextColor(primaryColor)
+        }
+
+        locationStatusView = statusView
+
+        val descriptionView = TextView(this).apply {
+            text = "Allow location sharing after reviewing the Android permission request."
+            textSize = 12f
+            setTextColor(secondaryColor)
+        }
+
+        val permissionButton = Button(this).apply {
+            text = "Allow Location Access"
+            textSize = 14f
+            isAllCaps = false
+            setTextColor(Color.WHITE)
+            backgroundTintList =
+                ColorStateList.valueOf(primaryColor)
+
+            setOnClickListener {
+                requestLocationPermission()
+            }
+        }
+
+        card.addView(titleView)
+
+        card.addView(
+            statusView,
+            marginParams(top = 8)
+        )
+
+        card.addView(
+            descriptionView,
+            marginParams(top = 6)
+        )
+
+        card.addView(
+            permissionButton,
+            marginParams(top = 12)
+        )
+
+        root.addView(
+            card,
+            marginParams(bottom = 12)
+        )
+
+        updateLocationStatus()
+    }
+
+    private fun requestLocationPermission() {
+        val fineGranted = checkSelfPermission(
+            Manifest.permission.ACCESS_FINE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED
+
+        val coarseGranted = checkSelfPermission(
+            Manifest.permission.ACCESS_COARSE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED
+
+        if (fineGranted || coarseGranted) {
+            updateLocationStatus()
+            return
+        }
+
+        requestPermissions(
+            arrayOf(
+                Manifest.permission.ACCESS_COARSE_LOCATION,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ),
+            LOCATION_PERMISSION_REQUEST
+        )
+    }
+
+    private fun updateLocationStatus() {
+        val fineGranted = checkSelfPermission(
+            Manifest.permission.ACCESS_FINE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED
+
+        val coarseGranted = checkSelfPermission(
+            Manifest.permission.ACCESS_COARSE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED
+
+        val status = when {
+            fineGranted -> "Allowed - Precise location"
+            coarseGranted -> "Allowed - Approximate location"
+            else -> "Not granted"
+        }
+
+        locationStatusView?.text = status
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(
+            requestCode,
+            permissions,
+            grantResults
+        )
+
+        if (requestCode == LOCATION_PERMISSION_REQUEST) {
+            updateLocationStatus()
+        }
     }
 
     // SHARED UI COMPONENTS
