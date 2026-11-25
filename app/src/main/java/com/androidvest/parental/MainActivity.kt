@@ -4,8 +4,10 @@ package com.androidvest.parental
 import android.app.Activity
 import android.os.Bundle
 import android.graphics.Color
+import android.content.res.ColorStateList
 import android.view.Gravity
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.ScrollView
 import android.widget.TextView
@@ -18,108 +20,206 @@ class MainActivity : Activity() {
     private val textColor = Color.WHITE
     private val secondaryColor = Color.rgb(148, 163, 184)
 
+    private lateinit var root: LinearLayout
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        showDashboard()
+    }
 
+    private fun createRoot(): ScrollView {
         val scrollView = ScrollView(this).apply {
             setBackgroundColor(backgroundColor)
             isFillViewport = true
         }
 
-        val root = LinearLayout(this).apply {
+        root = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             setPadding(dp(20), dp(28), dp(20), dp(28))
         }
 
-        val header = TextView(this).apply {
-            text = "ANDROID VEST"
-            textSize = 27f
-            setTextColor(textColor)
-            setTypeface(null, android.graphics.Typeface.BOLD)
-        }
+        scrollView.addView(root)
+        return scrollView
+    }
 
-        root.addView(header)
+    private fun showDashboard() {
+        val scrollView = createRoot()
 
-        val subtitle = TextView(this).apply {
-            text = "Parental Control Dashboard"
-            textSize = 14f
-            setTextColor(secondaryColor)
-        }
+        addTitle("ANDROID VEST")
+        addSubtitle("Parental Control Dashboard")
 
-        root.addView(subtitle, marginParams(top = 6, bottom = 24))
-
-        addSectionTitle(root, "DEVICE STATUS")
-
+        addSectionTitle("DEVICE STATUS")
         addCard(
-            root,
             "Child Device",
             "Not connected",
             "Connect a child device to begin."
         )
 
-        addSectionTitle(root, "ACTIVITY OVERVIEW")
-
+        addSectionTitle("ACTIVITY OVERVIEW")
         addCard(
-            root,
             "Screen Time",
             "Not available",
             "Usage information will appear after setup."
         )
 
         addCard(
-            root,
             "Location",
             "Not available",
             "Location requires device setup and permission."
         )
 
         addCard(
-            root,
             "Application Activity",
             "Not available",
-            "Installed app activity will appear here."
+            "Application activity will appear after setup."
         )
 
-        addSectionTitle(root, "PARENTAL CONTROLS")
-
+        addSectionTitle("PARENTAL CONTROLS")
         addCard(
-            root,
             "Usage Limits",
             "Not configured",
             "Set daily screen time limits."
         )
 
         addCard(
-            root,
             "App Management",
             "Not configured",
             "Manage allowed applications."
         )
 
         addCard(
-            root,
             "Safety Settings",
             "Not configured",
             "Configure family safety preferences."
         )
 
-        val footer = TextView(this).apply {
-            text = "ANDROID VEST • VERSION 1.0"
-            textSize = 11f
-            gravity = Gravity.CENTER
-            setTextColor(secondaryColor)
+        addSectionTitle("GENERAL")
+
+        addActionButton("SETTINGS") {
+            showSettings()
         }
 
-        root.addView(footer, marginParams(top = 24))
+        addFooter()
 
-        scrollView.addView(root)
         setContentView(scrollView)
     }
 
-    private fun addSectionTitle(
-        root: LinearLayout,
-        title: String
-    ) {
+    private fun showSettings() {
+        val scrollView = createRoot()
+
+        addTitle("SETTINGS")
+        addSubtitle("Android Vest Configuration")
+
+        addSectionTitle("ACCOUNT")
+
+        addCard(
+            "Parent Account",
+            "Not configured",
+            "Parent account information and account preferences."
+        )
+
+        addActionButton("Parent Account Settings") {
+            showInformation(
+                "Parent Account",
+                "Account configuration will be available in a future update."
+            )
+        }
+
+        addSectionTitle("CHILD DEVICE")
+
+        addCard(
+            "Device Connection",
+            "Not connected",
+            "Pair a child device using a secure pairing process."
+        )
+
+        addActionButton("Device Pairing") {
+            showInformation(
+                "Device Pairing",
+                "Secure device pairing will be implemented in the next stage."
+            )
+        }
+
+        addSectionTitle("SECURITY AND PRIVACY")
+
+        addCard(
+            "Permissions",
+            "Not configured",
+            "Device permissions will be requested only when required."
+        )
+
+        addActionButton("Permission Information") {
+            showInformation(
+                "Permissions",
+                "Android Vest will explain each permission before requesting it."
+            )
+        }
+
+        addCard(
+            "Privacy",
+            "Family safety",
+            "Monitoring features must be visible and use appropriate consent."
+        )
+
+        addActionButton("Privacy Information") {
+            showInformation(
+                "Privacy",
+                "Personal data should be protected and used only for family safety."
+            )
+        }
+
+        addSectionTitle("APPLICATION")
+
+        addCard(
+            "Application Version",
+            "Version 1.0",
+            "Android Vest Parental Control."
+        )
+
+        addActionButton("Back to Dashboard") {
+            showDashboard()
+        }
+
+        addFooter()
+
+        setContentView(scrollView)
+    }
+
+    private fun showInformation(title: String, message: String) {
+        val scrollView = createRoot()
+
+        addTitle(title)
+        addSubtitle(message)
+
+        addActionButton("Back to Settings") {
+            showSettings()
+        }
+
+        setContentView(scrollView)
+    }
+
+    private fun addTitle(title: String) {
+        val view = TextView(this).apply {
+            text = title
+            textSize = 27f
+            setTextColor(textColor)
+            setTypeface(null, android.graphics.Typeface.BOLD)
+        }
+
+        root.addView(view)
+    }
+
+    private fun addSubtitle(subtitle: String) {
+        val view = TextView(this).apply {
+            text = subtitle
+            textSize = 14f
+            setTextColor(secondaryColor)
+        }
+
+        root.addView(view, marginParams(top = 6, bottom = 24))
+    }
+
+    private fun addSectionTitle(title: String) {
         val view = TextView(this).apply {
             text = title
             textSize = 13f
@@ -131,7 +231,6 @@ class MainActivity : Activity() {
     }
 
     private fun addCard(
-        root: LinearLayout,
         title: String,
         status: String,
         description: String
@@ -165,10 +264,39 @@ class MainActivity : Activity() {
         card.addView(statusView, marginParams(top = 8))
         card.addView(descriptionView, marginParams(top = 6))
 
+        root.addView(card, marginParams(bottom = 12))
+    }
+
+    private fun addActionButton(
+        title: String,
+        action: () -> Unit
+    ) {
+        val button = Button(this).apply {
+            text = title
+            textSize = 14f
+            isAllCaps = false
+            setTextColor(Color.WHITE)
+            backgroundTintList = ColorStateList.valueOf(primaryColor)
+            setOnClickListener {
+                action()
+            }
+        }
+
         root.addView(
-            card,
-            marginParams(top = 0, bottom = 12)
+            button,
+            marginParams(top = 6, bottom = 12)
         )
+    }
+
+    private fun addFooter() {
+        val footer = TextView(this).apply {
+            text = "ANDROID VEST • VERSION 1.0"
+            textSize = 11f
+            gravity = Gravity.CENTER
+            setTextColor(secondaryColor)
+        }
+
+        root.addView(footer, marginParams(top = 24))
     }
 
     private fun marginParams(
