@@ -23,10 +23,13 @@ class MainActivity : Activity() {
     private val secondaryColor = Color.rgb(148, 163, 184)
 
     private lateinit var root: LinearLayout
+
     private var locationStatusView: TextView? = null
+    private var cameraStatusView: TextView? = null
 
     companion object {
         private const val LOCATION_PERMISSION_REQUEST = 1001
+        private const val CAMERA_PERMISSION_REQUEST = 1002
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -115,7 +118,6 @@ class MainActivity : Activity() {
         )
 
         addFooter()
-
         setContentView(scrollView)
     }
 
@@ -196,7 +198,6 @@ class MainActivity : Activity() {
         }
 
         addFooter()
-
         setContentView(scrollView)
     }
 
@@ -222,6 +223,7 @@ class MainActivity : Activity() {
         val scrollView = createRoot()
 
         locationStatusView = null
+        cameraStatusView = null
 
         addTitle("ANDROID VEST CHILD")
         addSubtitle("Device Setup & Permissions")
@@ -229,12 +231,7 @@ class MainActivity : Activity() {
         addSectionTitle("DEVICE PERMISSIONS")
 
         addLocationPermissionCard()
-
-        addCard(
-            "Camera Access",
-            "Not configured",
-            "Camera access will require Android permission approval."
-        )
+        addCameraPermissionCard()
 
         addCard(
             "Microphone Access",
@@ -263,71 +260,30 @@ class MainActivity : Activity() {
         )
 
         addFooter()
-
         setContentView(scrollView)
     }
 
+    // LOCATION PERMISSION
+
     private fun addLocationPermissionCard() {
-        val card = LinearLayout(this).apply {
-            orientation = LinearLayout.VERTICAL
-            setPadding(dp(16), dp(16), dp(16), dp(16))
-            setBackgroundColor(cardColor)
-        }
+        val card = createPermissionCard(
+            "Location Access",
+            "Allow location sharing after reviewing the Android permission request."
+        )
 
-        val titleView = TextView(this).apply {
-            text = "Location Access"
-            textSize = 17f
-            setTextColor(textColor)
-            setTypeface(null, android.graphics.Typeface.BOLD)
-        }
-
-        val statusView = TextView(this).apply {
-            textSize = 14f
-            setTextColor(primaryColor)
-        }
-
+        val statusView = createStatusView()
         locationStatusView = statusView
 
-        val descriptionView = TextView(this).apply {
-            text = "Allow location sharing after reviewing the Android permission request."
-            textSize = 12f
-            setTextColor(secondaryColor)
+        val permissionButton = createPermissionButton(
+            "Allow Location Access"
+        ) {
+            requestLocationPermission()
         }
 
-        val permissionButton = Button(this).apply {
-            text = "Allow Location Access"
-            textSize = 14f
-            isAllCaps = false
-            setTextColor(Color.WHITE)
-            backgroundTintList =
-                ColorStateList.valueOf(primaryColor)
+        card.addView(statusView, marginParams(top = 8))
+        card.addView(permissionButton, marginParams(top = 12))
 
-            setOnClickListener {
-                requestLocationPermission()
-            }
-        }
-
-        card.addView(titleView)
-
-        card.addView(
-            statusView,
-            marginParams(top = 8)
-        )
-
-        card.addView(
-            descriptionView,
-            marginParams(top = 6)
-        )
-
-        card.addView(
-            permissionButton,
-            marginParams(top = 12)
-        )
-
-        root.addView(
-            card,
-            marginParams(bottom = 12)
-        )
+        root.addView(card, marginParams(bottom = 12))
 
         updateLocationStatus()
     }
@@ -373,6 +329,59 @@ class MainActivity : Activity() {
         locationStatusView?.text = status
     }
 
+    // CAMERA PERMISSION
+
+    private fun addCameraPermissionCard() {
+        val card = createPermissionCard(
+            "Camera Access",
+            "Allow camera permission for user-visible camera features."
+        )
+
+        val statusView = createStatusView()
+        cameraStatusView = statusView
+
+        val permissionButton = createPermissionButton(
+            "Allow Camera Access"
+        ) {
+            requestCameraPermission()
+        }
+
+        card.addView(statusView, marginParams(top = 8))
+        card.addView(permissionButton, marginParams(top = 12))
+
+        root.addView(card, marginParams(bottom = 12))
+
+        updateCameraStatus()
+    }
+
+    private fun requestCameraPermission() {
+        val cameraGranted = checkSelfPermission(
+            Manifest.permission.CAMERA
+        ) == PackageManager.PERMISSION_GRANTED
+
+        if (cameraGranted) {
+            updateCameraStatus()
+            return
+        }
+
+        requestPermissions(
+            arrayOf(Manifest.permission.CAMERA),
+            CAMERA_PERMISSION_REQUEST
+        )
+    }
+
+    private fun updateCameraStatus() {
+        val cameraGranted = checkSelfPermission(
+            Manifest.permission.CAMERA
+        ) == PackageManager.PERMISSION_GRANTED
+
+        cameraStatusView?.text = if (cameraGranted) {
+            "Allowed"
+        } else {
+            "Not granted"
+        }
+    }
+
     override fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<out String>,
@@ -384,22 +393,73 @@ class MainActivity : Activity() {
             grantResults
         )
 
-        if (requestCode == LOCATION_PERMISSION_REQUEST) {
-            updateLocationStatus()
+        when (requestCode) {
+            LOCATION_PERMISSION_REQUEST -> updateLocationStatus()
+            CAMERA_PERMISSION_REQUEST -> updateCameraStatus()
         }
     }
 
     // SHARED UI COMPONENTS
+
+    private fun createPermissionCard(
+        title: String,
+        description: String
+    ): LinearLayout {
+        val card = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(dp(16), dp(16), dp(16), dp(16))
+            setBackgroundColor(cardColor)
+        }
+
+        val titleView = TextView(this).apply {
+            text = title
+            textSize = 17f
+            setTextColor(textColor)
+            setTypeface(null, android.graphics.Typeface.BOLD)
+        }
+
+        val descriptionView = TextView(this).apply {
+            text = description
+            textSize = 12f
+            setTextColor(secondaryColor)
+        }
+
+        card.addView(titleView)
+        card.addView(descriptionView, marginParams(top = 6))
+
+        return card
+    }
+
+    private fun createStatusView(): TextView {
+        return TextView(this).apply {
+            textSize = 14f
+            setTextColor(primaryColor)
+        }
+    }
+
+    private fun createPermissionButton(
+        title: String,
+        action: () -> Unit
+    ): Button {
+        return Button(this).apply {
+            text = title
+            textSize = 14f
+            isAllCaps = false
+            setTextColor(Color.WHITE)
+            backgroundTintList = ColorStateList.valueOf(primaryColor)
+
+            setOnClickListener {
+                action()
+            }
+        }
+    }
 
     private fun addTitle(title: String) {
         val view = TextView(this).apply {
             text = title
             textSize = 27f
             setTextColor(textColor)
-            setTypeface(
-                null,
-                android.graphics.Typeface.BOLD
-            )
+            setTypeface(null, android.graphics.Typeface.BOLD)
         }
 
         root.addView(view)
@@ -412,10 +472,7 @@ class MainActivity : Activity() {
             setTextColor(secondaryColor)
         }
 
-        root.addView(
-            view,
-            marginParams(top = 6, bottom = 20)
-        )
+        root.addView(view, marginParams(top = 6, bottom = 20))
     }
 
     private fun addSectionTitle(title: String) {
@@ -423,16 +480,10 @@ class MainActivity : Activity() {
             text = title
             textSize = 13f
             setTextColor(primaryColor)
-            setTypeface(
-                null,
-                android.graphics.Typeface.BOLD
-            )
+            setTypeface(null, android.graphics.Typeface.BOLD)
         }
 
-        root.addView(
-            view,
-            marginParams(top = 18, bottom = 10)
-        )
+        root.addView(view, marginParams(top = 18, bottom = 10))
     }
 
     private fun addCard(
@@ -442,12 +493,7 @@ class MainActivity : Activity() {
     ) {
         val card = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
-            setPadding(
-                dp(16),
-                dp(16),
-                dp(16),
-                dp(16)
-            )
+            setPadding(dp(16), dp(16), dp(16), dp(16))
             setBackgroundColor(cardColor)
         }
 
@@ -455,10 +501,7 @@ class MainActivity : Activity() {
             text = title
             textSize = 17f
             setTextColor(textColor)
-            setTypeface(
-                null,
-                android.graphics.Typeface.BOLD
-            )
+            setTypeface(null, android.graphics.Typeface.BOLD)
         }
 
         val statusView = TextView(this).apply {
@@ -474,21 +517,10 @@ class MainActivity : Activity() {
         }
 
         card.addView(titleView)
+        card.addView(statusView, marginParams(top = 8))
+        card.addView(descriptionView, marginParams(top = 6))
 
-        card.addView(
-            statusView,
-            marginParams(top = 8)
-        )
-
-        card.addView(
-            descriptionView,
-            marginParams(top = 6)
-        )
-
-        root.addView(
-            card,
-            marginParams(bottom = 12)
-        )
+        root.addView(card, marginParams(bottom = 12))
     }
 
     private fun addActionButton(
@@ -500,19 +532,14 @@ class MainActivity : Activity() {
             textSize = 14f
             isAllCaps = false
             setTextColor(Color.WHITE)
-
-            backgroundTintList =
-                ColorStateList.valueOf(primaryColor)
+            backgroundTintList = ColorStateList.valueOf(primaryColor)
 
             setOnClickListener {
                 action()
             }
         }
 
-        root.addView(
-            button,
-            marginParams(top = 6, bottom = 12)
-        )
+        root.addView(button, marginParams(top = 6, bottom = 12))
     }
 
     private fun addFooter() {
@@ -523,10 +550,7 @@ class MainActivity : Activity() {
             setTextColor(secondaryColor)
         }
 
-        root.addView(
-            footer,
-            marginParams(top = 24)
-        )
+        root.addView(footer, marginParams(top = 24))
     }
 
     private fun marginParams(
@@ -543,8 +567,6 @@ class MainActivity : Activity() {
     }
 
     private fun dp(value: Int): Int {
-        return (
-            value * resources.displayMetrics.density
-        ).toInt()
+        return (value * resources.displayMetrics.density).toInt()
     }
 }
