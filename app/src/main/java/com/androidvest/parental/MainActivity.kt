@@ -24,7 +24,12 @@ class MainActivity : Activity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        showDashboard()
+
+        if (BuildConfig.FLAVOR == "child") {
+            showChildSetup()
+        } else {
+            showDashboard()
+        }
     }
 
     private fun createRoot(): ScrollView {
@@ -42,13 +47,14 @@ class MainActivity : Activity() {
         return scrollView
     }
 
+    // PARENT APPLICATION
+
     private fun showDashboard() {
         val scrollView = createRoot()
 
         addTitle("ANDROID VEST")
         addSubtitle("Parental Control Dashboard")
 
-        // Settings button is now at the top.
         addActionButton("SETTINGS") {
             showSettings()
         }
@@ -202,6 +208,61 @@ class MainActivity : Activity() {
 
         setContentView(scrollView)
     }
+
+    // CHILD APPLICATION
+
+    private fun showChildSetup() {
+        val scrollView = createRoot()
+
+        addTitle("ANDROID VEST CHILD")
+        addSubtitle("Device Setup & Permissions")
+
+        addSectionTitle("DEVICE PERMISSIONS")
+
+        addCard(
+            "Camera Access",
+            "Not granted",
+            "Camera access requires Android permission approval."
+        )
+
+        addCard(
+            "Location Access",
+            "Not granted",
+            "Location sharing requires Android location permission."
+        )
+
+        addCard(
+            "Microphone Access",
+            "Not granted",
+            "Microphone access requires permission and a visible session."
+        )
+
+        addCard(
+            "Screen Sharing",
+            "Not configured",
+            "Screen sharing requires confirmation through the Android system."
+        )
+
+        addSectionTitle("PRIVACY AND SECURITY")
+
+        addCard(
+            "Permission Information",
+            "User controlled",
+            "You can review or revoke permissions in Android Settings."
+        )
+
+        addCard(
+            "Device Status",
+            "Setup required",
+            "Complete the required setup before connecting to the parent device."
+        )
+
+        addFooter()
+
+        setContentView(scrollView)
+    }
+
+    // SHARED UI COMPONENTS
 
     private fun addTitle(title: String) {
         val view = TextView(this).apply {
